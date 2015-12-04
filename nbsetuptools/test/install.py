@@ -1,4 +1,4 @@
-from nbsetuptools.nbsetuptools import setup, find_static
+from nbsetuptools import setup, find_static
 
 
 setup(
