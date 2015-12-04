@@ -2,10 +2,6 @@ package:
   name: nbsetooptools
   version: '0.1.0'
 
-build:
-  script:
-    - $PYTHON setup.py install
-
 requirements:
   build:
     - funcsigs
