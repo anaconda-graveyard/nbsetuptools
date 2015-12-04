@@ -8,7 +8,7 @@ try:
     from inspect import signature
 except ImportError:
     from funcsigs import signature
-from jupyter_core.paths import ENV_CONFIG_PATH
+from jupyter_core.paths import jupyter_config_dir
 from notebook.nbextensions import install_nbextension
 from notebook.services.config import ConfigManager
 
@@ -34,9 +34,9 @@ def enable(**kwargs):
     """
     if "prefix" in kwargs:
         path = join(kwargs["prefix"], "etc", "jupyter")
-        cm = ConfigManager(config_dir=path)
     else:
-        cm = ConfigManager(config_dir=join(ENV_CONFIG_PATH[0], "nbconfig"))
+        path = jupyter_config_dir()
+    cm = ConfigManager(config_dir=path)
     mkdir_p(cm.config_dir)
 
     cm.update(
