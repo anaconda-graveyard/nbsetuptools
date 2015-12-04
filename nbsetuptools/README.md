@@ -17,5 +17,6 @@ nbsetuptools.setup(
 Later you can run:
 
 ```
-python install.py --prefix $CONDA_ENV_PATH
+python setup.py install --prefix $CONDA_ENV_PATH
+python setup.py remove --prefix $CONDA_ENV_PATH
 ```

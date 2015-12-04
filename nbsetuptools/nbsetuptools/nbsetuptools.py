@@ -3,7 +3,7 @@
 import argparse
 import errno
 import os
-from os.path import abspath, dirname, join, isdir
+from os.path import join, isdir
 try:
     from inspect import signature
 except ImportError:
@@ -81,28 +81,69 @@ def install(directory, **kwargs):
         print(' '.join(['Installing', kwargs['name'], '\033[91m', '✗' + '\033[0m']))
 
 
+def install_cmd(parser_args, setup_args):
+    params = dict(setup_args.items() + parser_args.__dict__.items())
+    directory = params['static']
+    del params['static']
+    del params['main']
+    install(directory, **params)
+
+
+def remove_cmd(parser_args, setup_args):
+    name = setup_args['name']
+    if parser_args.prefix is None:
+        path = jupyter_config_dir()
+    else:
+        path = join(parser_args.prefix, "etc", "jupyter")
+    cm = ConfigManager(config_dir=path)
+    cfg = cm.get('notebook')
+    try:
+        del cfg[u'load_extensions']["{}/main".format(name)]
+        cm.set('notebook', cfg)
+        print(' '.join(['Disabling', name, '\033[92m', '✔' + '\033[0m']))
+    except KeyError as e:
+        print("{} wasn't enabled. Nothing to do.".format(e))
+
+
 def create_parser():
     parser = argparse.ArgumentParser(
-        description="Install nbextension")
-    parser.add_argument(
+        description="Install and uninstall nbextension")
+    subparsers = parser.add_subparsers(title='subcommands')
+    install_parser = subparsers.add_parser(
+        "install",
+        description="Install nbextension",
+        help="Install nbextension"
+    )
+    install_parser.add_argument(
         "-e", "--enable",
         help="Automatically load server and nbextension on notebook launch",
-        action="store_true")
-    default_kwargs = dict(
-        action="store",
-        nargs="?"
+        action="store_true"
     )
-    install_kwargs = list(signature(install_nbextension).parameters)
-    store_true_kwargs = dict(action="store_true")
-    store_true = ["symlink", "overwrite", "quiet", "user"]
 
+    default_kwargs = {'action': 'store', 'nargs': '?'}
+    store_true_kwargs = {'action': 'store_true'}
+    store_true = ["symlink", "overwrite", "quiet", "user"]
+    install_kwargs = list(signature(install_nbextension).parameters)
     [
-        parser.add_argument(
+        install_parser.add_argument(
             "--{}".format(arg),
             **(store_true_kwargs if arg in store_true else default_kwargs)
         )
         for arg in install_kwargs
     ]
+
+    remove_parser = subparsers.add_parser(
+        "remove",
+        help="Remove an extension"
+    )
+    remove_parser.add_argument(
+        "--prefix",
+        action="store"
+    )
+
+    install_parser.set_defaults(main=install_cmd)
+    remove_parser.set_defaults(main=remove_cmd)
+
     return parser
 
 
@@ -116,8 +157,5 @@ def find_static():
 
 def setup(**kwargs):
     parser = create_parser()
-    params = dict(kwargs.items() + parser.parse_args().__dict__.items())
-    directory = kwargs['static']
-    del params['static']
-
-    install(directory, **params)
+    args = parser.parse_args()
+    args.main(args, kwargs)
