@@ -1,0 +1,24 @@
+package:
+  name: nbsetooptools
+  version: '0.1.0'
+
+build:
+  script:
+    - $PYTHON setup.py install
+
+requirements:
+  build:
+    - funcsigs
+    - notebook
+    - python
+  run:
+    - funcsigs
+    - notebook
+    - python
+
+source:
+  path: ../
+
+about:
+  home: https://github.com/anaconda-server/anaconda-notebook
+  license: TBD
