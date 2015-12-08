@@ -98,6 +98,17 @@ def install_cmd(parser_args, setup_args):
     install(directory, **params)
 
 
+def disable_extension(name, cm):
+    for _type in ['notebook', 'tree']:
+        cfg = cm.get(_type)
+    try:
+        del cfg[u'load_extensions']["{}/main".format(name)]
+        cm.set(_type, cfg)
+        print(' '.join(['Disabling', name, '\033[92m', '✔' + '\033[0m']))
+    except KeyError:
+        print("{} wasn't enabled as a {}. Nothing to do.".format(name, _type))
+
+
 def remove_cmd(parser_args, setup_args):
     name = setup_args['name']
     if parser_args.prefix is None:
@@ -105,13 +116,7 @@ def remove_cmd(parser_args, setup_args):
     else:
         path = join(parser_args.prefix, "etc", "jupyter")
     cm = ConfigManager(config_dir=path)
-    cfg = cm.get('notebook')
-    try:
-        del cfg[u'load_extensions']["{}/main".format(name)]
-        cm.set('notebook', cfg)
-        print(' '.join(['Disabling', name, '\033[92m', '✔' + '\033[0m']))
-    except KeyError as e:
-        print("{} wasn't enabled. Nothing to do.".format(e))
+    disable_extension(name, cm)
 
 
 def create_parser():
