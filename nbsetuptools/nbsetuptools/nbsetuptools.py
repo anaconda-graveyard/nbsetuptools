@@ -28,7 +28,7 @@ def mkdir_p(path):
             raise
 
 
-def enable(**kwargs):
+def enable(directory, **kwargs):
     """
     Enable the extension on every notebook
     """
@@ -39,13 +39,22 @@ def enable(**kwargs):
     cm = ConfigManager(config_dir=path)
     mkdir_p(cm.config_dir)
 
-    cm.update(
-        "notebook", {
-            "load_extensions": {
-                "{}/main".format(kwargs['name']): True
-            },
-        }
-    )
+    if 'main.js' in os.listdir(directory):
+        cm.update(
+            "notebook", {
+                "load_extensions": {
+                    "{}/main".format(kwargs['name']): True
+                },
+            }
+        )
+    if 'tree.js' in os.listdir(directory):
+        cm.update(
+            "tree", {
+                "load_extensions": {
+                    "{}/tree".format(kwargs['name']): True
+                },
+            }
+        )
     print(' '.join(['Enabling', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
 
 
@@ -75,7 +84,7 @@ def install(directory, **kwargs):
         install_nbextension(directory, **_install_args(**kwargs))
         print(' '.join(['Installing', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
         if kwargs['enable']:
-            enable(**kwargs)
+            enable(directory, **kwargs)
     except Exception as e:
         print(e)
         print(' '.join(['Installing', kwargs['name'], '\033[91m', '✗' + '\033[0m']))
