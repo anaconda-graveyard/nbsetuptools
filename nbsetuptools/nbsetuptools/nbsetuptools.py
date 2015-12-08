@@ -55,6 +55,14 @@ def enable(directory, **kwargs):
                 },
             }
         )
+    if 'edit.js' in os.listdir(directory):
+        cm.update(
+            "edit", {
+                "load_extensions": {
+                    "{}/edit".format(kwargs['name']): True
+                },
+            }
+        )
     print(' '.join(['Enabling', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
 
 
@@ -99,7 +107,7 @@ def install_cmd(parser_args, setup_args):
 
 
 def disable_extension(name, cm):
-    for _type in ['notebook', 'tree']:
+    for _type in ['notebook', 'tree', 'edit']:
         cfg = cm.get(_type)
     try:
         del cfg[u'load_extensions']["{}/main".format(name)]
