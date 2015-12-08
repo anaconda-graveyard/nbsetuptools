@@ -64,6 +64,22 @@ def enable(directory, **kwargs):
             }
         )
     print(' '.join(['Enabling', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
+    enable_server_extension(**kwargs)
+
+
+def enable_server_extension(**kwargs):
+    if "prefix" in kwargs:
+        path = join(kwargs["prefix"], "etc", "jupyter")
+    else:
+        path = jupyter_config_dir()
+    fn = os.path.join(path, 'jupyter_notebook_config.py')
+    with open(fn, 'r+') as fh:
+        lines = fh.read()
+        if kwargs['name'] not in lines:
+            fh.seek(0, 2)
+            fh.write('\n')
+            fh.write(
+                "c.NotebookApp.server_extensions.append('{}.nbextension')".format(kwargs['name']))
 
 
 def _install_args(**kwargs):
