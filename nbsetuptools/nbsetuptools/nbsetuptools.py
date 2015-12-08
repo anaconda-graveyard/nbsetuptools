@@ -134,7 +134,7 @@ class NBSetup(object):
         )
         if "{}.nbextension".format(self.name) not in server_extensions:
             cfg["NotebookApp"]["server_extensions"] += ["{}.nbextension".format(self.name)]
-        self.self.cm.update("jupyter_notebook_config", cfg)
+        self.cm.update("jupyter_notebook_config", cfg)
 
 
 def install_cmd(parser_args, setup_args):
