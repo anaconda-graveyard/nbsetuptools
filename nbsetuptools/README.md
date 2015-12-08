@@ -2,26 +2,80 @@
 
 > Help you install your nbextensions
 
+## Features
+
+* Install nbextensions
+* Activate nbextensions
+* Activate nbserverextensions
+* Disable any extension
+
 ## How to use
 
-``` python
-import nbsetuptools
+Install `NBSetupTools` with: `conda install nbsetuptools -c anaconda-notebook` and setup this
+boilerplate:
 
-nbsetuptools.setup(
-    join(abspath(dirname(__file__)), 'static'),
-    name='hello_world',
-    version='0.1.0'
+```
+extension/
+  - extension/
+    - nbextension/
+      __init__.py
+      handlers.py
+    - static/
+      main.js
+      edit.js
+      tree.js
+    __init__.py
+    _version.py
+    setup.py         # We will work here!
+  setup.py           # Your python setup.py, nothing new here!
+  README.mdi         # You need documentation
+```
+
+You'll have 2 different `setup.py` files. One is for your `nbserverextension` which
+is the same as a python module. There is plenty of documentation about that
+[here](https://docs.python.org/2/distutils/index.html).
+
+The next one works with `nbsetuptools` and it should look like:
+
+``` python
+from nbsetuptools import setup, find_static
+
+setup(
+    name='extension',
+    version='0.1.0',
+    static=find_static()
 )
 ```
 
-Later you can run:
+Once you have your module installed you can run:
 
 ```
+cd extension
 python setup.py install --prefix $CONDA_ENV_PATH --enable
 python setup.py remove --prefix $CONDA_ENV_PATH
 ```
 
-## Features
+## Options available
 
-It will help you install frontend extensions. You will need a `static` folder with a
-`main.js` or a `tree.js` file on it.
+```
+$ python setup.py install --help
+usage: setup.py install [-h] [-e] [--path [PATH]] [--overwrite] [--symlink]
+                        [--user] [--prefix [PREFIX]]
+                        [--nbextensions_dir [NBEXTENSIONS_DIR]]
+                        [--destination [DESTINATION]] [--verbose [VERBOSE]]
+
+Install nbextension
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -e, --enable          Automatically load server and nbextension on notebook
+                        launch
+  --path [PATH]
+  --overwrite
+  --symlink
+  --user
+  --prefix [PREFIX]
+  --nbextensions_dir [NBEXTENSIONS_DIR]
+  --destination [DESTINATION]
+  --verbose [VERBOSE]
+```
