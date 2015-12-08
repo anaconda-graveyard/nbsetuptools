@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import copy
 import errno
 import os
 from os.path import join, isdir
@@ -28,110 +29,128 @@ def mkdir_p(path):
             raise
 
 
-def enable(directory, **kwargs):
-    """
-    Enable the extension on every notebook
-    """
-    if "prefix" in kwargs:
-        path = join(kwargs["prefix"], "etc", "jupyter")
-    else:
-        path = jupyter_config_dir()
-    cm = ConfigManager(config_dir=path)
-    mkdir_p(cm.config_dir)
+class NBSetup(object):
+    def __init__(self, name, **kwargs):
+        self.name = name
+        self.prefix = kwargs.get('prefix', None)
+        self.kwargs = kwargs
+        if self.prefix is None:
+            self.path = jupyter_config_dir()
+        else:
+            self.path = join(self.prefix, "etc", "jupyter")
+        self.cm = ConfigManager(config_dir=self.path)
 
-    for key, filename in {'notebook': 'main.js', 'tree': 'tree.js', 'edit': 'edit.js'}.iteritems():
-        if filename in os.listdir(directory):
-            cm.update(
-                key, {
-                    "load_extensions": {
-                        "{}/{}".format(kwargs['name'], key): True
+    def install(self):
+        """
+        Install an extension (copy or symlinks)
+        """
+        try:
+            install_nbextension(self.kwargs['static'], **self._install_params())
+            self._echo("Installing {}".format(self.name), 'ok')
+        except Exception as e:
+            self._echo(e, None)
+            self._echo("Installing {}".format(self.name), 'fail')
+
+    def enable(self):
+        mkdir_p(self.cm.config_dir)
+        self._enable_client_extensions()
+        try:
+            __import__(self.name)
+            self._enable_server_extensions()
+        except ImportError:
+            pass
+        self._echo('Enabling {}'.format(self.name), 'ok')
+
+    def disable(self):
+        # Client side
+        self._disable_client_extension()
+        self._disable_server_extension()
+
+    def _disable_client_extension(self):
+        for _type in ['notebook', 'tree', 'edit']:
+            cfg = self.cm.get(_type)
+            try:
+                nb_key = "{}/{}".format(self.name, _type)
+                nb_extensions = list(cfg['load_extensions'].keys())
+                if nb_key in nb_extensions:
+                    cfg['load_extensions'].pop(nb_key)
+                    self._echo("Disabling {} as {}".format(self.name, _type), 'ok')
+            except KeyError:
+                self._echo("{} wasn't enabled as a {}. Nothing to do.".format(self.name, _type))
+
+    def _disable_server_extension(self):
+        cfg = self.cm.get("jupyter_notebook_config")
+        try:
+            server_extensions = cfg["NotebookApp"]["server_extensions"]
+            if "condaenvs.nbextension" in server_extensions:
+                server_extensions.remove("condaenvs.nbextension")
+            self.cm.update("jupyter_notebook_config", cfg)
+            self._echo("{} was disabled as a server extension".format(self.name), 'ok')
+        except KeyError:
+            self._echo("{} was't enabled as a server extension. Nothing to do.".format(self.name))
+
+    def _install_params(self):
+        params = copy.deepcopy(self.kwargs)
+        params['destination'] = self.name
+        if params['verbose']:
+            params['verbose'] = 2
+        else:
+            params['verbose'] = 0
+        for key in ['enable', 'static', 'version', 'main', 'path']:
+            del params[key]
+
+        return params
+
+    def _echo(self, msg, status=None):
+        if status == 'ok':
+            print(' '.join([msg, '\033[92m', '✔' + '\033[0m']))
+        elif status == 'fail':
+            print(' '.join([msg, '\033[91m', '✗' + '\033[0m']))
+        else:
+            print(msg)
+
+    def _enable_client_extensions(self):
+        directory = self.kwargs['static']
+        extensions_map = {
+            'notebook': 'main.js',
+            'tree': 'tree.js',
+            'edit': 'edit.js'
+        }
+        for key, filename in extensions_map.iteritems():
+            if filename in os.listdir(directory):
+                self.cm.update(
+                    key, {
+                        "load_extensions": {
+                            "{}/{}".format(self.name, key): True
+                        }
                     }
-                }
-            )
-    print(' '.join(['Enabling', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
+                )
 
-    try:
-        __import__(kwargs['name'])
-        enable_server_extension(**kwargs)
-    except ImportError:
-        pass
-
-
-def enable_server_extension(**kwargs):
-    if "prefix" in kwargs:
-        path = join(kwargs["prefix"], "etc", "jupyter")
-    else:
-        path = jupyter_config_dir()
-    cm = ConfigManager(config_dir=path)
-    cfg = cm.get("jupyter_notebook_config")
-    server_extensions = (
-        cfg.setdefault("NotebookApp", {})
-        .setdefault("server_extensions", [])
-    )
-    if "{}.nbextension".format(kwargs['name']) not in server_extensions:
-        cfg["NotebookApp"]["server_extensions"] += ["{}.nbextension".format(kwargs['name'])]
-    cm.update("jupyter_notebook_config", cfg)
-
-
-def _install_args(**kwargs):
-    kwargs['verbose'] = 0
-    if kwargs['verbose']:
-        kwargs['verbose'] = 2
-    kwargs["destination"] = kwargs['name']
-    del kwargs['enable']
-    del kwargs['name']
-    del kwargs['version']
-    return kwargs
-
-
-def install(directory, **kwargs):
-    """Install the nbextension assets and optionally enables the
-       nbextension and server extension for every run.
-    Parameters
-    ----------
-    directory: path
-    **kwargs: keyword arguments
-        Other keyword arguments passed to the install_nbextension command
-    """
-    kwargs = {k: v for k, v in kwargs.items() if not (v is None)}
-
-    try:
-        install_nbextension(directory, **_install_args(**kwargs))
-        print(' '.join(['Installing', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
-        if kwargs['enable']:
-            enable(directory, **kwargs)
-    except Exception as e:
-        print(e)
-        print(' '.join(['Installing', kwargs['name'], '\033[91m', '✗' + '\033[0m']))
+    def _enable_server_extensions(self):
+        cfg = self.cm.get("jupyter_notebook_config")
+        server_extensions = (
+            cfg.setdefault("NotebookApp", {})
+            .setdefault("server_extensions", [])
+        )
+        if "{}.nbextension".format(self.name) not in server_extensions:
+            cfg["NotebookApp"]["server_extensions"] += ["{}.nbextension".format(self.name)]
+        self.self.cm.update("jupyter_notebook_config", cfg)
 
 
 def install_cmd(parser_args, setup_args):
     params = dict(setup_args.items() + parser_args.__dict__.items())
-    directory = params['static']
-    del params['static']
-    del params['main']
-    install(directory, **params)
+    name = params['name']
+    del params['name']
 
-
-def disable_extension(name, cm):
-    for _type in ['notebook', 'tree', 'edit']:
-        cfg = cm.get(_type)
-    try:
-        del cfg[u'load_extensions']["{}/main".format(name)]
-        cm.set(_type, cfg)
-        print(' '.join(['Disabling', name, '\033[92m', '✔' + '\033[0m']))
-    except KeyError:
-        print("{} wasn't enabled as a {}. Nothing to do.".format(name, _type))
+    nb_setup = NBSetup(name, **params)
+    nb_setup.install()
+    if params['enable']:
+        nb_setup.enable()
 
 
 def remove_cmd(parser_args, setup_args):
-    name = setup_args['name']
-    if parser_args.prefix is None:
-        path = jupyter_config_dir()
-    else:
-        path = join(parser_args.prefix, "etc", "jupyter")
-    cm = ConfigManager(config_dir=path)
-    disable_extension(name, cm)
+    nb_setup = NBSetup(setup_args['name'], prefix=parser_args.prefix)
+    nb_setup.disable()
 
 
 def create_parser():
