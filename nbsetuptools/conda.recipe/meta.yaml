@@ -4,8 +4,6 @@ package:
 
 requirements:
   build:
-    - funcsigs
-    - notebook
     - python
   run:
     - funcsigs
