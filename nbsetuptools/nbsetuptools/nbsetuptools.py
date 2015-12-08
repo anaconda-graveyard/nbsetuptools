@@ -39,30 +39,15 @@ def enable(directory, **kwargs):
     cm = ConfigManager(config_dir=path)
     mkdir_p(cm.config_dir)
 
-    if 'main.js' in os.listdir(directory):
-        cm.update(
-            "notebook", {
-                "load_extensions": {
-                    "{}/main".format(kwargs['name']): True
-                },
-            }
-        )
-    if 'tree.js' in os.listdir(directory):
-        cm.update(
-            "tree", {
-                "load_extensions": {
-                    "{}/tree".format(kwargs['name']): True
-                },
-            }
-        )
-    if 'edit.js' in os.listdir(directory):
-        cm.update(
-            "edit", {
-                "load_extensions": {
-                    "{}/edit".format(kwargs['name']): True
-                },
-            }
-        )
+    for key, filename in {'notebook': 'main.js', 'tree': 'tree.js', 'edit': 'edit.js'}.iteritems():
+        if filename in os.listdir(directory):
+            cm.update(
+                key, {
+                    "load_extensions": {
+                        "{}/{}".format(kwargs['name'], key): True
+                    }
+                }
+            )
     print(' '.join(['Enabling', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
     enable_server_extension(**kwargs)
 
