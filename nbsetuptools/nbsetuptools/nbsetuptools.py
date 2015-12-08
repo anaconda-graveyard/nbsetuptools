@@ -49,7 +49,12 @@ def enable(directory, **kwargs):
                 }
             )
     print(' '.join(['Enabling', kwargs['name'], '\033[92m', '✔' + '\033[0m']))
-    enable_server_extension(**kwargs)
+
+    try:
+        __import__(kwargs['name'])
+        enable_server_extension(**kwargs)
+    except ImportError:
+        pass
 
 
 def enable_server_extension(**kwargs):
@@ -57,14 +62,15 @@ def enable_server_extension(**kwargs):
         path = join(kwargs["prefix"], "etc", "jupyter")
     else:
         path = jupyter_config_dir()
-    fn = os.path.join(path, 'jupyter_notebook_config.py')
-    with open(fn, 'r+') as fh:
-        lines = fh.read()
-        if kwargs['name'] not in lines:
-            fh.seek(0, 2)
-            fh.write('\n')
-            fh.write(
-                "c.NotebookApp.server_extensions.append('{}.nbextension')".format(kwargs['name']))
+    cm = ConfigManager(config_dir=path)
+    cfg = cm.get("jupyter_notebook_config")
+    server_extensions = (
+        cfg.setdefault("NotebookApp", {})
+        .setdefault("server_extensions", [])
+    )
+    if "{}.nbextension".format(kwargs['name']) not in server_extensions:
+        cfg["NotebookApp"]["server_extensions"] += ["{}.nbextension".format(kwargs['name'])]
+    cm.update("jupyter_notebook_config", cfg)
 
 
 def _install_args(**kwargs):
