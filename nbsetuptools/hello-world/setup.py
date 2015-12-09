@@ -3,7 +3,7 @@ from hello_world import _version
 
 
 setuptools.setup(
-    name="hello-world",
+    name="hello_world",
     version=_version.__version__,
     url="https://github.com/anaconda-server/anaconda-notebook",
     author="Continuum Analytics",
