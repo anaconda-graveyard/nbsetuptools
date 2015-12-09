@@ -100,12 +100,15 @@ class NBSetup(object):
     def _install_params(self):
         params = copy.deepcopy(self.kwargs)
         params['destination'] = self.name
-        if params['verbose']:
+        if params.get('verbose', False):
             params['verbose'] = 2
         else:
             params['verbose'] = 0
         for key in ['enable', 'static', 'version', 'main', 'path']:
-            del params[key]
+            try:
+                del params[key]
+            except KeyError:
+                pass
 
         return params
 
