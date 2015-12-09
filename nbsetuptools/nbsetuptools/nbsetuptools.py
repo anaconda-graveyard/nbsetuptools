@@ -121,7 +121,7 @@ class NBSetup(object):
                 self.cm.update(
                     key, {
                         "load_extensions": {
-                            "{}/{}".format(self.name, key): True
+                            "{}/{}".format(self.name, filename[:-3]): True
                         }
                     }
                 )
