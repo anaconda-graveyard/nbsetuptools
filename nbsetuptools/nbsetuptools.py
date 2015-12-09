@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 import argparse
 import copy
@@ -74,7 +75,7 @@ class NBSetup(object):
         self._disable_server_extension()
 
     def _disable_client_extension(self):
-        for _type, filename in self.extensions_map.iteritems():
+        for _type, filename in list(self.extensions_map.items()):
             cfg = self.cm.get(_type)
             try:
                 nb_key = "{}/{}".format(self.name, filename[:-3])
@@ -122,8 +123,7 @@ class NBSetup(object):
 
     def _enable_client_extensions(self):
         directory = self.kwargs['static']
-
-        for key, filename in self.extensions_map.iteritems():
+        for key, filename in list(self.extensions_map.items()):
             if filename in os.listdir(directory):
                 self.cm.update(
                     key, {
@@ -145,7 +145,7 @@ class NBSetup(object):
 
 
 def install_cmd(parser_args, setup_args):
-    params = dict(setup_args.items() + parser_args.__dict__.items())
+    params = dict(list(setup_args.items()) + list(parser_args.__dict__.items()))
     name = params['name']
     del params['name']
 

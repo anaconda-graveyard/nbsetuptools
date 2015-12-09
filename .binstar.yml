@@ -10,14 +10,10 @@ engine:
   - python=3.4
 
 install:
-  - conda build conda.recipe
-  - conda install condaenvs --use-local
-
-script:
-  - conda build --no-test ./conda.recipe/
+  - conda build conda.recipe -c anaconda-notebook
+  - conda install nbsetuptools --use-local -c anaconda-notebook
 
 test:
   - python -m unittest discover
 
 build_targets: conda
-
