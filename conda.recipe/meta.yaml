@@ -5,8 +5,9 @@ package:
 requirements:
   build:
     - python
+
   run:
-    - funcsigs [py2]
+    - funcsigs # [py2]
     - notebook
     - python
 
