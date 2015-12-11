@@ -16,6 +16,6 @@ install:
   - conda install nbsetuptools --use-local -c anaconda-notebook
 
 test:
-  - PYTHONIOENCODING=utf-8 python -m unittest discover
+  - python -m unittest discover
 
 build_targets: conda
