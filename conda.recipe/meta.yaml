@@ -7,7 +7,7 @@ requirements:
     - python
 
   run:
-    - funcsigs # [py2]
+    - funcsigs
     - notebook
     - python
 
