@@ -115,9 +115,9 @@ class NBSetup(object):
 
     def _echo(self, msg, status=None):
         if status == 'ok':
-            print(' '.join([msg, '\033[92m', '✔' + '\033[0m']))
+            print(' '.join([msg, '\033[92m', 'OK' + '\033[0m']))
         elif status == 'fail':
-            print(' '.join([msg, '\033[91m', '✗' + '\033[0m']))
+            print(' '.join([msg, '\033[91m', 'FAIL' + '\033[0m']))
         else:
             print(msg)
 
