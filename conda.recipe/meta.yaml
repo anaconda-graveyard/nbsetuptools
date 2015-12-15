@@ -17,4 +17,5 @@ source:
 about:
   home: https://github.com/anaconda-server/anaconda-notebook
   license_file: LICENSE
-  license: BSD Licenselicense: BSD
+  license: BSD
+
