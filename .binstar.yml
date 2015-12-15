@@ -3,8 +3,10 @@ user: anaconda-notebook
 
 platform:
   - linux-64
+  - linux-32
   - osx-64
 #  - win-64
+  - win-32
 
 engine:
   - python=2.7
