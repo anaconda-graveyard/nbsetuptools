@@ -1,6 +1,6 @@
 package:
   name: nbsetuptools
-  version: '0.1.0'
+  version: 0.1.4
 
 requirements:
   build:
@@ -15,7 +15,6 @@ source:
   path: ../
 
 about:
-  home: https://github.com/anaconda-server/anaconda-notebook
-  license_file: LICENSE
+  home: https://github.com/anaconda-server/nbsetuptools
   license: BSD
-
+  license_file: LICENSE
