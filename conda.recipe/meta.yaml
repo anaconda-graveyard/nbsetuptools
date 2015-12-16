@@ -1,7 +1,6 @@
-{% set data = load_setuptools()%}
 package:
   name: nbsetuptools
-  version: {{data.get('version')}}
+  version: 0.1.3
 
 requirements:
   build:
@@ -16,6 +15,6 @@ source:
   path: ../
 
 about:
-  home: {{data.get('url')}}
-  license: {{data.get('license')}}
+  home: https://github.com/anaconda-server/nbsetuptools
+  license: BSD
   license_file: LICENSE
