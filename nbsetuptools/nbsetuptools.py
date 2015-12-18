@@ -6,14 +6,24 @@ import copy
 import errno
 import os
 from os.path import join, isdir
-try:
-    from inspect import signature
-except ImportError:
-    from funcsigs import signature
-from jupyter_core.paths import jupyter_config_dir
-from notebook.nbextensions import install_nbextension
-from notebook.services.config import ConfigManager
+import sys
 
+try:
+    try:
+        from inspect import signature
+    except ImportError:
+        from funcsigs import signature
+    from jupyter_core.paths import jupyter_config_dir
+    from notebook.nbextensions import install_nbextension
+    from notebook.services.config import ConfigManager
+except ImportError:
+    # when a Conda environment is removed, dependencies may be
+    # unlinked first. In this case, just bail. The Jupyter
+    # config where this extension is registered lives in the
+    # environment, so it will be destroyed anyway.
+    # (If we allow this to fail, it will show up as a build
+    # failure on anaconda.org CI system).
+    sys.exit(0)
 
 class StaticPathNotFound(Exception):
     pass
