@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name="nbsetuptools",
-    version='0.1.4',
+    version='0.1.5',
     url="https://github.com/anaconda-server/nbsetuptools",
     author="Continuum Analytics",
     author_email="info@continuum.io",
