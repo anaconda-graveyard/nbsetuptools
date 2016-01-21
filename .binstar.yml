@@ -1,11 +1,10 @@
 package: nbsetuptools
-user: anaconda-notebook
 
 platform:
   - linux-64
-  - linux-32
   - osx-64
   - win-64
+  - linux-32
   - win-32
 
 engine:
@@ -14,10 +13,13 @@ engine:
   - python=3.5
 
 install:
-  - conda build --quiet conda.recipe -c anaconda-notebook
-  - conda install nbsetuptools --use-local -c anaconda-notebook
+  - conda config --add channels anaconda-nb-extensions
 
-test:
+script:
+  - conda build --quiet conda.recipe
+  - conda install nbsetuptools --use-local
+
+after_script:
   - python -m unittest discover
 
 build_targets: conda

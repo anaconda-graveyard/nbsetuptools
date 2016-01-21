@@ -11,7 +11,7 @@
 
 ## How to use
 
-Install `NBSetupTools` with: `conda install nbsetuptools -c anaconda-notebook` and setup this
+Install `NBSetupTools` with: `conda install nbsetuptools -c anaconda-nb-extensions` and setup this
 boilerplate:
 
 ```
