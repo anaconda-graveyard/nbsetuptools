@@ -12,6 +12,6 @@ setup(
     license='BSD',
     install_requires=[
         'funcsigs',
-        'jupyter'
+        'notebook',
     ]
 )
