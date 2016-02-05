@@ -11,6 +11,10 @@ requirements:
     - funcsigs
     - notebook
 
+test:
+  requires:
+    - nose
+
 source:
   path: ../
 

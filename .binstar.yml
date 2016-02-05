@@ -17,9 +17,5 @@ install:
 
 script:
   - conda build --quiet conda.recipe
-  - conda install nbsetuptools --use-local
-
-after_script:
-  - python -m unittest discover
 
 build_targets: conda
