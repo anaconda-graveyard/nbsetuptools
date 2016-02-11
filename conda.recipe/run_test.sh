@@ -1,1 +1,1 @@
-"${PREFIX}/bin/python" -m nose nbsetuptools
+"${PREFIX}/bin/python" -m unittest discover
