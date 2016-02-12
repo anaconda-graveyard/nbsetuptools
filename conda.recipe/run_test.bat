@@ -1,1 +1,1 @@
-"%PREFIX%\python.exe" -m unittest discover
+"%PREFIX%\python.exe" -m unittest discover nbsetuptools

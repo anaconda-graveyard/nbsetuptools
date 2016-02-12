@@ -1,1 +1,1 @@
-"${PREFIX}/bin/python" -m unittest discover
+"${PREFIX}/bin/python" -m unittest discover nbsetuptools
