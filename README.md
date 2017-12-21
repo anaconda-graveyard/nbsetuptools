@@ -1,3 +1,9 @@
+# NOTE
+
+The functionality provided here was superseded by upstream jupyter.
+This repo is not in active development.
+Thanks!
+
 # NBSetupTools
 
 > Help you install your nbextensions
